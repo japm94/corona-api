@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 // Data struct used to encode csv data to json
@@ -16,8 +15,7 @@ type Data struct {
 	LastUpdate    string `json:"Last_Update"`
 	Lat           string `json:"Lat"`
 	Long          string `json:"Long_"`
-	Confirmed     string `json:"Confirmed"`
-	Deaths        string `json:"Deaths"`
+	Result        string `json:"Result"`
 }
 
 func main() {
@@ -27,24 +25,17 @@ func main() {
 
 }
 
-func todaysDate() string {
-	today := time.Now().Format("01-02-2006")
-
-	return today
-}
-
 // Convert CSV to Data
 func convertCSVToJSON() []byte {
 
 	var oneRecord Data
 	var allRecords []Data
-	records := ReadCSV("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/" + todaysDate() + ".csv")
+	records := ReadCSV("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv")
 	for _, rec := range records {
-		oneRecord.CountryRegion = rec[3]
-		oneRecord.Lat = rec[5]
-		oneRecord.Long = rec[6]
-		oneRecord.Confirmed = rec[7]
-		oneRecord.Deaths = rec[8]
+		oneRecord.CountryRegion = rec[1]
+		oneRecord.Lat = rec[2]
+		oneRecord.Long = rec[3]
+		oneRecord.Result = rec[len(rec)-1]
 		allRecords = append(allRecords, oneRecord)
 	}
 
@@ -53,8 +44,6 @@ func convertCSVToJSON() []byte {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	fmt.Println(string(jasondata))
 
 	return jasondata
 }
@@ -84,6 +73,6 @@ func ReadCSV(url string) [][]string {
 	}
 	// Removing header
 	records = records[1:]
-	fmt.Println(records)
+
 	return records
 }
